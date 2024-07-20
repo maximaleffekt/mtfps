@@ -61,12 +61,17 @@ def info_printer(video_info, audio_langs):
         print('  {}'.format(lang))
 
 if __name__ == '__main__':
+    try:
+        subprocess.run(['ffprobe', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError:
+        print('It seems like ffprobe is missing from your system. Please install ffmpeg and try again.')
+        sys.exit(1)
+
     if len(sys.argv) == 1:
-        print('Usage: mtfps.py <filename or directory>'.format(sys.argv[0]))
+        print('Usage: mtfps.py <filename or directory>')
         sys.exit(1)
 
     elif len(sys.argv) == 2:
-        # check if argument is file or directory
         isfile = os.path.isfile(sys.argv[1])
         if isfile:
             video_info, audio_langs = probe(sys.argv[1])
@@ -87,7 +92,8 @@ if __name__ == '__main__':
                         else:
                             print('Error: Unable to probe {} (are you sure this is a video file?)'.format(file))
                             sys.exit(1)
-    elif len(sys.argv) == 3: # special flag added
+
+    elif len(sys.argv) == 3:
         if sys.argv[1] == "--max-mode": # only the largest file in the first level of each folder gets probed
             for item in os.listdir(sys.argv[2]):
                 if os.path.isdir(os.path.join(sys.argv[2], item)):
